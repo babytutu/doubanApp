@@ -7,15 +7,25 @@ const path = require('path')
 const createWindow = () => {
   // 创建浏览窗口
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
-    }
+    },
+    resizable: false,
+    icon: path.join(__dirname, 'icon.png')
   })
 
-  // 加载 index.html
-  mainWindow.loadFile('index.html')
+  // 加载 url
+  mainWindow.loadURL('https://fm.douban.com')
+
+  // dock弹跳效果
+  setTimeout(() => {
+    app.dock.bounce()
+  }, 5000)
+
+  // 设置dock图标
+  app.dock.setIcon(path.join(__dirname, 'icon.png'))
 
   // 打开开发工具
   // mainWindow.webContents.openDevTools()

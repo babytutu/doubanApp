@@ -1,5 +1,8 @@
 module.exports = {
-  packagerConfig: {},
+  packagerConfig: {
+    icon: 'icon.png',
+    name: '豆瓣FM',
+  },
   rebuildConfig: {},
   makers: [
     {
