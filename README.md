@@ -1,4 +1,4 @@
-# Electron
+# 使用Electron制作豆瓣FM的Mac版
 
 ## 解决安装依赖失败
 
@@ -50,8 +50,34 @@ forge.config.js
 ```js
 module.exports = {
   packagerConfig: {
-    icon: 'icon.png',
     name: '豆瓣FM',
+    icon: './icon',
+    buildVersion: '2023-03-20',
   },
+}
+```
+
+### 打包成DMG文件
+
+forge.config.js
+
+调整makers实现打包成DMG文件
+
+```js
+module.exports = {
+  makers: [
+    {
+      name: '@electron-forge/maker-dmg',
+      /**
+       * @see https://github.com/electron/forge/blob/89d0cd290/packages/maker/dmg/src/Config.ts
+       */
+      config: {
+        name: 'doubanFM',
+        background: './icon.png',
+        format: 'ULFO',
+        iconSize: 100,
+      },
+    },
+  ],
 }
 ```
