@@ -1,7 +1,7 @@
 // main.js
 
 // electron 模块可以用来控制应用的生命周期和创建原生浏览窗口
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, Menu } = require('electron')
 const path = require('path')
 
 const createWindow = () => {
@@ -13,7 +13,8 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js')
     },
     resizable: false,
-    icon: path.join(__dirname, 'icon.png')
+    center: true,
+    icon: path.join(__dirname, 'img/icon.png'),
   })
 
   // 加载 url
@@ -25,18 +26,20 @@ const createWindow = () => {
   }, 5000)
 
   // 设置dock图标
-  app.dock.setIcon(path.join(__dirname, 'icon.png'))
+  app.dock.setIcon(path.join(__dirname, 'img/icon.png'))
 
   // 打开开发工具
   // mainWindow.webContents.openDevTools()
 }
+
+// 禁用默认菜单
+Menu.setApplicationMenu(null)
 
 // 这段程序将会在 Electron 结束初始化
 // 和创建浏览器窗口的时候调用
 // 部分 API 在 ready 事件触发后才能使用。
 app.whenReady().then(() => {
   createWindow()
-
   app.on('activate', () => {
     // 在 macOS 系统内, 如果没有已开启的应用窗口
     // 点击托盘图标时通常会重新创建一个新窗口

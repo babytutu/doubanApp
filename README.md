@@ -1,12 +1,48 @@
 # 使用Electron制作豆瓣FM的Mac版
 
-## 解决安装依赖失败
+仅通过`Electron`的API`loadURL`实现窗口内嵌套豆瓣FM网址生成app和dmg
+[github代码仓库](https://github.com/babytutu/doubanApp)
+
+## 创建项目
+
+```bash
+mkdir my-electron-app && cd my-electron-app
+npm init
+```
+
+安装依赖包
+
+```bash
+npm install --save-dev electron
+```
+
+### 解决安装依赖失败
 
 新增.npmrc
 
 ```
 registry = https://registry.npm.taobao.org
 ELECTRON_MIRROR = https://npmmirror.com/mirrors/electron/
+```
+
+## 核心实现代码
+
+基于[官方文档](https://www.electronjs.org/docs/latest/tutorial/quick-start)，修改部分内容实现，使用`loadURL`加载url即可
+
+```js
+  // 创建浏览窗口
+  const mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    },
+    resizable: false,
+    icon: path.join(__dirname, 'icon.png')
+  })
+
+  // 加载 url
+  mainWindow.loadURL('https://fm.douban.com')
 ```
 
 ## DOCK设置
@@ -24,7 +60,16 @@ setTimeout(() => {
 app.dock.setIcon(path.join(__dirname, 'icon.png'))
 ```
 
-## 打包
+## 禁用默认菜单
+
+在app.whenReady()之前调用
+
+```js
+// 禁用默认菜单
+Menu.setApplicationMenu(null)
+```
+
+## 生成app
 
 ### 使用 Electron Forge
 
@@ -60,17 +105,17 @@ npm run package
 Electron-forge 会创建 out 文件夹
 
 
-### 打包成DMG文件
+## 生成DMG文件
 
 使用appdmg实现打包成DMG文件
 
-#### 新增依赖包
+### 新增依赖包
 
 ```bash
 yarn add appdmg -D
 ```
 
-#### 新增appdmg.js
+### 新增appdmg.js
 
 ```js
 const fs = require('fs')
@@ -133,7 +178,7 @@ dmg.on('error', function (err) {
 
 ```
 
-#### package.json新增打包脚本
+### package.json新增打包脚本
 
 ```json
 {
@@ -143,7 +188,7 @@ dmg.on('error', function (err) {
 }
 ```
 
-#### 生成dmg文件
+### 生成dmg文件
 
 ```bash
 npm run dmg
