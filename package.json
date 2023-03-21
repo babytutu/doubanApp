@@ -6,11 +6,11 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "dmg": "node appdmg.js"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.5",
-    "@electron-forge/maker-dmg": "^6.0.5",
+    "appdmg": "^0.6.6",
     "electron": "^23.1.4"
   }
 }
