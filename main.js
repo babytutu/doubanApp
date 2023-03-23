@@ -32,8 +32,25 @@ const createWindow = () => {
   // mainWindow.webContents.openDevTools()
 }
 
-// 禁用默认菜单
-Menu.setApplicationMenu(null)
+// 自定义菜单
+const menuTemp = [
+  {
+    label: '设置',
+    submenu: [
+      {
+        label: '关于',
+        role: 'about',
+      },
+      { type: 'separator' },
+      {
+        label: '退出',
+        role: 'quit',
+      }
+    ]
+  }
+]
+const menu = Menu.buildFromTemplate(menuTemp)
+Menu.setApplicationMenu(menu)
 
 // 这段程序将会在 Electron 结束初始化
 // 和创建浏览器窗口的时候调用

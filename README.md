@@ -13,7 +13,7 @@ npm init
 安装依赖包
 
 ```bash
-npm install --save-dev electron
+npm install -D electron
 ```
 
 ### 解决安装依赖失败
@@ -38,7 +38,7 @@ ELECTRON_MIRROR = https://npmmirror.com/mirrors/electron/
       preload: path.join(__dirname, 'preload.js')
     },
     resizable: false,
-    icon: path.join(__dirname, 'icon.png')
+    icon: path.join(__dirname, 'img/icon.png')
   })
 
   // 加载 url
@@ -57,7 +57,7 @@ setTimeout(() => {
 }, 5000)
 
 // 设置dock图标
-app.dock.setIcon(path.join(__dirname, 'icon.png'))
+app.dock.setIcon(path.join(__dirname, 'img/icon.png'))
 ```
 
 ## 禁用默认菜单
@@ -67,6 +67,29 @@ app.dock.setIcon(path.join(__dirname, 'icon.png'))
 ```js
 // 禁用默认菜单
 Menu.setApplicationMenu(null)
+```
+
+或者自定义菜单
+
+```js
+const menuTemp = [
+  {
+    label: '设置',
+    submenu: [
+      {
+        label: '关于',
+        role: 'about',
+      },
+      { type: 'separator' },
+      {
+        label: '退出',
+        role: 'quit',
+      }
+    ]
+  }
+]
+const menu = Menu.buildFromTemplate(menuTemp)
+Menu.setApplicationMenu(menu)
 ```
 
 ## 生成app
@@ -91,7 +114,7 @@ module.exports = {
   packagerConfig: {
     name: '豆瓣FM',
     icon: 'img/icon',
-    buildVersion: '2023-03-20',
+    buildVersion: '2023-03-23',
   },
 }
 ```
@@ -107,7 +130,7 @@ Electron-forge 会创建 out 文件夹
 
 ## 生成DMG文件
 
-使用appdmg实现打包成DMG文件
+直接使用maker-dmg打包生成的部分自定义参数未生效，调整为直接使用appdmg实现打包成DMG文件
 
 ### 新增依赖包
 
@@ -120,25 +143,39 @@ yarn add appdmg -D
 ```js
 const fs = require('fs')
 const appdmg = require('appdmg')
+const { version } = require('./package.json')
+const { packagerConfig: { name } } = require('./forge.config')
 
-const dmgName = 'out/doubanFM.dmg'
+const dmgName = `out/${name}@${version}.dmg`
+const appPath = `out/${name}-darwin-x64/${name}.app`
 
 const setting = {
-  "title": "doubanFM",
+  "title": name,
   "icon": "img/icon.icns",
   "icon-size": 100,
+  "background": "img/background.png",
   "format": "ULMO",
   "window": {
     "size": {
       "width": 600,
       "height": 400
+    },
+    "position": {
+      "x": 100,
+      "y": 100
     }
   },
   "contents": [
-    { "x": 150, "y": 100, "type": "file", "path": "./out/豆瓣FM-darwin-x64/豆瓣FM.app" },
-    { "x": 300, "y": 100, "type": "link", "path": "/Applications" },
-    { "x": 450, "y": 100, "type": "file", "path": "README.md" }
+    { "x": 150, "y": 240, "type": "file", "path": appPath },
+    { "x": 300, "y": 240, "type": "link", "path": "/Applications" },
+    { "x": 450, "y": 240, "type": "file", "path": "README.md" }
   ]
+}
+
+// 检查是否已生成app文件
+if (!fs.existsSync(appPath)) {
+  console.log('请先打包app')
+  return
 }
 
 // 删除已有文件

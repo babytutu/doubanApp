@@ -1,13 +1,16 @@
 const fs = require('fs')
 const appdmg = require('appdmg')
+const { version } = require('./package.json')
+const { packagerConfig: { name } } = require('./forge.config')
 
-const dmgName = 'out/doubanFM.dmg'
+const dmgName = `out/${name}@${version}.dmg`
+const appPath = `out/${name}-darwin-x64/${name}.app`
 
 const setting = {
-  "title": "doubanFM",
+  "title": name,
   "icon": "img/icon.icns",
   "icon-size": 100,
-  "background": "img/BingWallpaper.jpg",
+  "background": "img/background.png",
   "format": "ULMO",
   "window": {
     "size": {
@@ -20,13 +23,14 @@ const setting = {
     }
   },
   "contents": [
-    { "x": 150, "y": 100, "type": "file", "path": "out/豆瓣FM-darwin-x64/豆瓣FM.app" },
-    { "x": 300, "y": 100, "type": "link", "path": "/Applications" },
-    { "x": 450, "y": 100, "type": "file", "path": "README.md" }
+    { "x": 150, "y": 240, "type": "file", "path": appPath },
+    { "x": 300, "y": 240, "type": "link", "path": "/Applications" },
+    { "x": 450, "y": 240, "type": "file", "path": "README.md" }
   ]
 }
 
-if (!fs.existsSync('out/豆瓣FM-darwin-x64/豆瓣FM.app')) {
+// 检查是否已生成app文件
+if (!fs.existsSync(appPath)) {
   console.log('请先打包app')
   return
 }
