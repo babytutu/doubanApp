@@ -1,13 +1,13 @@
 const fs = require('fs')
 const appdmg = require('appdmg')
-const { version } = require('./package.json')
-const { packagerConfig: { name } } = require('./forge.config')
+const { version, productName: name } = require('./package.json')
+const { packagerConfig: { buildVersion } } = require('./forge.config')
 
-const dmgName = `out/${name}@${version}.dmg`
+const dmgName = `out/${name}-${version}.dmg`
 const appPath = `out/${name}-darwin-x64/${name}.app`
 
 const setting = {
-  "title": name,
+  "title": `${name}-${version}(${buildVersion})`,
   "icon": "img/icon.icns",
   "icon-size": 100,
   "background": "img/background.png",
@@ -23,9 +23,8 @@ const setting = {
     }
   },
   "contents": [
-    { "x": 150, "y": 240, "type": "file", "path": appPath },
-    { "x": 300, "y": 240, "type": "link", "path": "/Applications" },
-    { "x": 450, "y": 240, "type": "file", "path": "README.md" }
+    { "x": 200, "y": 260, "type": "file", "path": appPath },
+    { "x": 400, "y": 260, "type": "link", "path": "/Applications" },
   ]
 }
 

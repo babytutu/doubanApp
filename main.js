@@ -1,36 +1,16 @@
 // main.js
 
 // electron 模块可以用来控制应用的生命周期和创建原生浏览窗口
-const { app, BrowserWindow, Menu } = require('electron')
+const { app, BrowserWindow, Menu, shell } = require('electron')
 const path = require('path')
 
-const createWindow = () => {
-  // 创建浏览窗口
-  const mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    },
-    resizable: false,
-    center: true,
-    icon: path.join(__dirname, 'img/icon.png'),
-  })
+const icon = path.join(__dirname, 'img/icon.png')
 
-  // 加载 url
-  mainWindow.loadURL('https://fm.douban.com')
+// 设置dock图标,macOS
+app.dock.setIcon(icon)
 
-  // dock弹跳效果
-  setTimeout(() => {
-    app.dock.bounce()
-  }, 5000)
-
-  // 设置dock图标
-  app.dock.setIcon(path.join(__dirname, 'img/icon.png'))
-
-  // 打开开发工具
-  // mainWindow.webContents.openDevTools()
-}
+// dock弹跳效果
+app.dock.bounce()
 
 // 自定义菜单
 const menuTemp = [
@@ -41,7 +21,18 @@ const menuTemp = [
         label: '关于',
         role: 'about',
       },
-      { type: 'separator' },
+      {
+        type: 'separator'
+      },
+      {
+        label: '源代码',
+        click: () => {
+          shell.openExternal('https://github.com/babytutu/doubanApp')
+        }
+      },
+      {
+        type: 'separator'
+      },
       {
         label: '退出',
         role: 'quit',
@@ -51,6 +42,32 @@ const menuTemp = [
 ]
 const menu = Menu.buildFromTemplate(menuTemp)
 Menu.setApplicationMenu(menu)
+
+// 设置 "关于" 面板选项
+app.setAboutPanelOptions({
+  credits: '使用Electron制作豆瓣FM的Mac版',
+})
+
+// 设置应用窗口
+const createWindow = () => {
+  // 创建浏览窗口
+  const mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 760,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    },
+    center: true,
+    resizable: false,
+    icon: icon, // 应用图标,window
+  })
+
+  // 加载 url
+  mainWindow.loadURL('https://fm.douban.com')
+
+  // 打开开发工具
+  // mainWindow.webContents.openDevTools()
+}
 
 // 这段程序将会在 Electron 结束初始化
 // 和创建浏览器窗口的时候调用
