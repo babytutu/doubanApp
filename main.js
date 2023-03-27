@@ -1,10 +1,54 @@
 // main.js
 
 // electron 模块可以用来控制应用的生命周期和创建原生浏览窗口
-const { app, BrowserWindow, Menu, shell } = require('electron')
+const { app, BrowserWindow, Menu, shell, Tray, nativeImage } = require('electron')
 const path = require('path')
+const Store = require('electron-store')
 
 const icon = path.join(__dirname, 'img/icon.png')
+
+// 初始化缓存
+const schema = {
+  showTitle: {
+    type: 'boolean',
+    default: true
+  }
+}
+
+const store = new Store({schema})
+
+// 设置顶部图标
+let tray
+
+const setTray = () => {
+  const image = nativeImage.createFromPath(icon)
+  tray = new Tray(image.resize({
+    width: 20,
+    height: 20
+  }))
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: '显示标题',
+      click: () => {
+        store.set('showTitle', true)
+        tray.setTitle('豆瓣FM')
+      }
+    },
+    {
+      label: '隐藏标题',
+      click: () => {
+        store.set('showTitle', false)
+        tray.setTitle('')
+      }
+    },
+    {
+      label: '退出',
+      role: 'quit',
+    }
+  ])
+  tray.setContextMenu(contextMenu)
+}
 
 // 设置dock图标,macOS
 app.dock.setIcon(icon)
@@ -64,7 +108,16 @@ const createWindow = () => {
 
   // 加载 url
   mainWindow.loadURL('https://fm.douban.com')
+  // mainWindow.loadFile('index.html')
 
+  mainWindow.on('page-title-updated', (e, title) => {
+    // 更新标题到通知区
+    if (store.get('showTitle')) {
+      tray.setTitle(title)
+    } else {
+      tray.setTitle('')
+    }
+  })
   // 打开开发工具
   // mainWindow.webContents.openDevTools()
 }
@@ -73,6 +126,7 @@ const createWindow = () => {
 // 和创建浏览器窗口的时候调用
 // 部分 API 在 ready 事件触发后才能使用。
 app.whenReady().then(() => {
+  setTray()
   createWindow()
   app.on('activate', () => {
     // 在 macOS 系统内, 如果没有已开启的应用窗口

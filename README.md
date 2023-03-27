@@ -94,6 +94,28 @@ const menu = Menu.buildFromTemplate(menuTemp)
 Menu.setApplicationMenu(menu)
 ```
 
+## 设置顶部图标
+
+使用Tray
+
+```js
+let tray
+
+const image = nativeImage.createFromPath('img/icon.png')
+tray = new Tray(image.resize({
+  width: 20,
+  height: 20
+}))
+
+const contextMenu = Menu.buildFromTemplate([
+  {
+    label: '退出',
+    role: 'quit',
+  }
+])
+tray.setContextMenu(contextMenu)
+```
+
 ## 设置关于面板
 
 ```js
@@ -101,6 +123,34 @@ Menu.setApplicationMenu(menu)
 app.setAboutPanelOptions({
   credits: '使用Electron制作,可点击源代码DIY',
 })
+```
+
+## 本地缓存
+
+新增`electron-store`实现app内数据缓存，不能安装在开发依赖`devDependencies`中，生成app时需要把这个模块一起打包才能使用
+
+```bash
+yarn add electron-store
+```
+
+```js
+const Store = require('electron-store')
+
+// 初始化缓存
+const schema = {
+  showTitle: {
+    type: 'boolean',
+    default: true
+  }
+}
+
+const store = new Store({schema})
+
+// 读取
+console.log(store.get('showTitle'))
+
+// 修改
+store.set('showTitle', false)
 ```
 
 ## 生成app
