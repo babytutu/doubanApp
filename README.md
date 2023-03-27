@@ -130,7 +130,7 @@ app.setAboutPanelOptions({
 新增`electron-store`实现app内数据缓存，不能安装在开发依赖`devDependencies`中，生成app时需要把这个模块一起打包才能使用
 
 ```bash
-yarn add electron-store
+npm install electron-store
 ```
 
 ```js
