@@ -1,13 +1,14 @@
 {
   "name": "douban-fm",
   "productName": "豆瓣FM",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "main.js",
   "license": "MIT",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "test": "electron ./example/index.js"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.5",

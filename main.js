@@ -4,15 +4,14 @@
 const { app, BrowserWindow, Menu, shell, Tray, nativeImage } = require('electron')
 const path = require('path')
 const Store = require('electron-store')
-
 const icon = path.join(__dirname, 'img/icon.png')
 
 // 初始化缓存
 const schema = {
-  showTitle: {
+  showTray: {
     type: 'boolean',
     default: true
-  }
+  },
 }
 
 const store = new Store({schema})
@@ -21,33 +20,24 @@ const store = new Store({schema})
 let tray
 
 const setTray = () => {
-  const image = nativeImage.createFromPath(icon)
-  tray = new Tray(image.resize({
-    width: 20,
-    height: 20
-  }))
+  if (store.get('showTray')) {
+    const image = nativeImage.createFromPath(icon)
+    tray = new Tray(image.resize({
+      width: 20,
+      height: 20
+    }))
 
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: '显示标题',
-      click: () => {
-        store.set('showTitle', true)
-        tray.setTitle('豆瓣FM')
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: '退出',
+        role: 'quit',
       }
-    },
-    {
-      label: '隐藏标题',
-      click: () => {
-        store.set('showTitle', false)
-        tray.setTitle('')
-      }
-    },
-    {
-      label: '退出',
-      role: 'quit',
-    }
-  ])
-  tray.setContextMenu(contextMenu)
+    ])
+    tray.setContextMenu(contextMenu)
+    tray.setTitle(app.name)
+  } else {
+    tray && tray.destroy()
+  }
 }
 
 // 设置dock图标,macOS
@@ -61,6 +51,16 @@ const menuTemp = [
   {
     label: '设置',
     submenu: [
+      {
+        label: '状态栏',
+        checked: store.get('showTray'),
+        type: 'checkbox',
+        click: () => {
+          const showTray = store.get('showTray')
+          store.set('showTray', !showTray)
+          setTray()
+        }
+      },
       {
         label: '关于',
         role: 'about',
@@ -98,9 +98,6 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 760,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    },
     center: true,
     resizable: false,
     icon: icon, // 应用图标,window
@@ -108,14 +105,11 @@ const createWindow = () => {
 
   // 加载 url
   mainWindow.loadURL('https://fm.douban.com')
-  // mainWindow.loadFile('index.html')
 
   mainWindow.on('page-title-updated', (e, title) => {
-    // 更新标题到通知区
-    if (store.get('showTitle')) {
-      tray.setTitle(title)
-    } else {
-      tray.setTitle('')
+    // 更新标题到状态栏
+    if (store.get('showTray')) {
+      tray && tray.setTitle(title)
     }
   })
   // 打开开发工具
