@@ -1,7 +1,7 @@
 // main.js
 
 // electron 模块可以用来控制应用的生命周期和创建原生浏览窗口
-const { app, BrowserWindow, Menu, shell, Tray, nativeImage } = require('electron')
+const { app, BrowserWindow, Menu, shell, Tray, nativeImage, dialog } = require('electron')
 const path = require('path')
 const Store = require('electron-store')
 const icon = path.join(__dirname, 'img/icon.png')
@@ -16,6 +16,9 @@ const schema = {
 
 const store = new Store({schema})
 
+// 定义程序主窗口
+let mainWindow
+
 // 设置顶部图标
 let tray
 
@@ -26,15 +29,15 @@ const setTray = () => {
       width: 20,
       height: 20
     }))
-
-    const contextMenu = Menu.buildFromTemplate([
-      {
-        label: '退出',
-        role: 'quit',
-      }
-    ])
-    tray.setContextMenu(contextMenu)
     tray.setTitle(app.name)
+    // 点击置顶主窗口
+    tray.on('click', () => {
+      if (mainWindow.isDestroyed()) {
+        createWindow()
+      } else {
+        mainWindow.show()
+      }
+    })
   } else {
     tray && tray.destroy()
   }
@@ -62,8 +65,14 @@ const menuTemp = [
         }
       },
       {
-        label: '关于',
-        role: 'about',
+        label: '刷新',
+        click: () => {
+          if (mainWindow.isDestroyed()) {
+            createWindow()
+          } else {
+            mainWindow.reload()
+          }
+        }
       },
       {
         type: 'separator'
@@ -71,11 +80,24 @@ const menuTemp = [
       {
         label: '源代码',
         click: () => {
-          shell.openExternal('https://github.com/babytutu/doubanApp')
+          dialog.showMessageBox(mainWindow, {
+            title: 'title',
+            message: '即将打开GitHub仓库',
+            buttons: ['确定', '取消'],
+            defaultId: 0,
+          }).then(({ response }) => {
+            if (response === 0) {
+              shell.openExternal('https://github.com/babytutu/doubanApp')
+            }
+          })
         }
       },
       {
         type: 'separator'
+      },
+      {
+        label: '关于',
+        role: 'about',
       },
       {
         label: '退出',
@@ -95,7 +117,7 @@ app.setAboutPanelOptions({
 // 设置应用窗口
 const createWindow = () => {
   // 创建浏览窗口
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 760,
     center: true,
